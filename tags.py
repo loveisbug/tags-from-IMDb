@@ -9,14 +9,22 @@ import sys
 
 baseurl = "http://www.imdb.com/title/"
 
-def get_IMDbID_from_douban(url):
-    return ''
+def get_IMDbURL_from_douban(doubanurl):
+    imdburl = ''
+    urlrequest = urllib2.Request(doubanurl)
+    html_src = urllib2.urlopen(urlrequest).read()
+    parser = BeautifulSoup(html_src, "html.parser")
+    arr = parser.findAll('span', 'pl')
+    for pl in arr:
+        if pl.text.find('IMDb') > -1:
+            imdburl = pl.findNext('a')['href']
+    return imdburl
 
 def gen_imdburl(param):
     ttid = ''
     tturl = ''
     if param.find('movie.douban') > -1:
-        ttid = get_IMDbID_from_douban(param)
+        tturl = get_IMDbURL_from_douban(param)
     elif param.find('tt') == 0: # and len(param) == 7
         ttid = param
     elif param.find('imdb.com/title/tt') > -1:
@@ -35,7 +43,7 @@ def tags_from_IMDb(param):
     tturl = gen_imdburl(param)
     if tturl:
         tags = gen_tags(tturl)
-        print tags
+        print tturl
 
 def main(argv):
     if len(argv) > 1:

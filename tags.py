@@ -45,7 +45,7 @@ def gen_tags(url):
     # for cou in country:
     #     taglst.append(cou.text)
     taglst.append(parser.find('a', {'href' : re.compile(r'/country/')}).text) # Country
-    taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content']) # Release Date
+    taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content'].split('-')[0]) # Release Date
     genres = parser.findAll('span', {'class' : 'itemprop', 'itemprop' : 'genre'})
     for genre in genres:
         taglst.append(genre.text)

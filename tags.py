@@ -49,6 +49,7 @@ def gen_tags(url):
     genres = parser.findAll('span', {'class' : 'itemprop', 'itemprop' : 'genre'})
     for genre in genres:
         taglst.append(genre.text)
+    taglst.append(parser.find('a', {'href' : re.compile(r'/company/')}).text.replace(' ', '')) # Production Co
     return taglst
 
 def tags_from_IMDb(param):

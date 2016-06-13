@@ -5,9 +5,11 @@ import urllib
 import urllib2
 import HTMLParser
 from bs4 import BeautifulSoup
+import re
 import sys
 
 baseurl = "http://www.imdb.com/title/"
+taglst = []
 
 def get_IMDbURL_from_douban(doubanurl):
     imdburl = ''
@@ -31,19 +33,29 @@ def gen_imdburl(param):
         tturl = param
     else:
         print "URL error."
-        return ''
     if ttid:
         tturl = baseurl + ttid
     return tturl
 
 def gen_tags(url):
-    return 'test'
+    urlrequest = urllib2.Request(url)
+    html_src = urllib2.urlopen(urlrequest).read()
+    parser = BeautifulSoup(html_src, "html.parser")
+    # country = parser.findAll('a', {'href' : re.compile(r'/country/')})
+    # for cou in country:
+    #     taglst.append(cou.text)
+    taglst.append(parser.find('a', {'href' : re.compile(r'/country/')}).text) # Country
+    taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content']) # Release Date
+    genres = parser.findAll('span', {'class' : 'itemprop', 'itemprop' : 'genre'})
+    for genre in genres:
+        taglst.append(genre.text)
+    return taglst
 
 def tags_from_IMDb(param):
     tturl = gen_imdburl(param)
     if tturl:
         tags = gen_tags(tturl)
-        print tturl
+        print ' '.join(tags)
 
 def main(argv):
     if len(argv) > 1:

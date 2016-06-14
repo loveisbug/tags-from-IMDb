@@ -1,7 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 # python2.7.10
 
-import urllib
 import urllib2
 import HTMLParser
 from bs4 import BeautifulSoup
@@ -41,15 +40,15 @@ def gen_tags(url):
     urlrequest = urllib2.Request(url)
     html_src = urllib2.urlopen(urlrequest).read()
     parser = BeautifulSoup(html_src, "html.parser")
-    # country = parser.findAll('a', {'href' : re.compile(r'/country/')})
-    # for cou in country:
-    #     taglst.append(cou.text)
-    taglst.append(parser.find('a', {'href' : re.compile(r'/country/')}).text) # Country
+    countries = parser.findAll('a', {'href' : re.compile(r'/country/')}) # Country
+    for country in countries:
+        taglst.append(country.text.replace(' ', ''))
     taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content'].split('-')[0]) # Release Date
-    genres = parser.findAll('span', {'class' : 'itemprop', 'itemprop' : 'genre'})
+    genres = parser.findAll('a', {'href' : re.compile(r'/genre/\w+\?')}) # Genres
     for genre in genres:
-        taglst.append(genre.text)
-    taglst.append(parser.find('a', {'href' : re.compile(r'/company/')}).text.replace(' ', '')) # Production Co
+        if not genre.text.strip() in taglst:
+            taglst.append(genre.text.strip())
+    # taglst.append(parser.find('a', {'href' : re.compile(r'/company/')}).text.replace(' ', '')) # Production Co
     return taglst
 
 def tags_from_IMDb(param):

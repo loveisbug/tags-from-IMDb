@@ -7,19 +7,20 @@ from bs4 import BeautifulSoup
 import re
 import sys
 
+imdburl = "http://www.imdb.com"
 baseurl = "http://www.imdb.com/title/"
 taglst = []
 
 def get_IMDbURL_from_douban(doubanurl):
-    imdburl = ''
+    iurl = ''
     urlrequest = urllib2.Request(doubanurl)
     html_src = urllib2.urlopen(urlrequest).read()
     parser = BeautifulSoup(html_src, "html.parser")
     arr = parser.findAll('span', 'pl')
     for pl in arr:
         if pl.text.find('IMDb') > -1:
-            imdburl = pl.findNext('a')['href']
-    return imdburl
+            iurl = pl.findNext('a')['href']
+    return iurl
 
 def gen_imdburl(param):
     ttid = ''
@@ -49,6 +50,14 @@ def gen_tags(url):
         if not genre.text.strip() in taglst:
             taglst.append(genre.text.strip())
     # taglst.append(parser.find('a', {'href' : re.compile(r'/company/')}).text.replace(' ', '')) # Production Co
+    comoreurl = imdburl + parser.find('a', {'href' : re.compile(r'companycredits')})['href']
+    urlrequest = urllib2.Request(comoreurl)
+    html_src = urllib2.urlopen(urlrequest).read()
+    parser = BeautifulSoup(html_src, "html.parser")
+    prodinfo = parser.find('h4', {'id' : 'production', 'name' : 'production'}).findNext('ul', 'simpleList')
+    comps = prodinfo.findAll('a', {'href' : re.compile(r'/company/')})
+    for comp in comps:
+        taglst.append(comp.text.replace(' ', ''))
     return taglst
 
 def tags_from_IMDb(param):

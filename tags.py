@@ -49,8 +49,7 @@ def gen_tags(url):
     for genre in genres:
         if not genre.text.strip() in taglst:
             taglst.append(genre.text.strip())
-    # taglst.append(parser.find('a', {'href' : re.compile(r'/company/')}).text.replace(' ', '')) # Production Co
-    comoreurl = imdburl + parser.find('a', {'href' : re.compile(r'companycredits')})['href']
+    comoreurl = imdburl + parser.find('a', {'href' : re.compile(r'companycredits')})['href'] # Production Co
     urlrequest = urllib2.Request(comoreurl)
     html_src = urllib2.urlopen(urlrequest).read()
     parser = BeautifulSoup(html_src, "html.parser")

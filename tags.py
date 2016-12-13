@@ -41,7 +41,8 @@ def gen_tags(url):
     urlrequest = urllib2.Request(url)
     html_src = urllib2.urlopen(urlrequest).read()
     parser = BeautifulSoup(html_src, "html.parser")
-    countries = parser.findAll('a', {'href' : re.compile(r'/country/')}) # Country
+    # countries = parser.findAll('a', {'href' : re.compile(r'\?countries=')}) # Countries
+    countries = parser.findAll('a', {'href' : re.compile(r'\?country_of_origin=')}) # Countries
     for country in countries:
         taglst.append(country.text.replace(' ', ''))
     taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content'].split('-')[0]) # Release Date
@@ -50,13 +51,17 @@ def gen_tags(url):
         if not genre.text.strip() in taglst:
             taglst.append(genre.text.strip())
     comoreurl = imdburl + parser.find('a', {'href' : re.compile(r'companycredits')})['href'] # Production Co
+    # failed on "Show detailed company contact information on IMDbPro"
+    # "http://www.imdb.com/title/tt1997605/companycredits?ref_=tt_ql_dt_5"
     urlrequest = urllib2.Request(comoreurl)
     html_src = urllib2.urlopen(urlrequest).read()
     parser = BeautifulSoup(html_src, "html.parser")
-    prodinfo = parser.find('h4', {'id' : 'production', 'name' : 'production'}).findNext('ul', 'simpleList')
-    comps = prodinfo.findAll('a', {'href' : re.compile(r'/company/')})
-    for comp in comps:
-        taglst.append(comp.text.replace(' ', ''))
+    prod = parser.find('h4', {'id' : 'production', 'name' : 'production'})
+    if prod != None:
+        prodinfo = prod.findNext('ul', 'simpleList')
+        comps = prodinfo.findAll('a', {'href' : re.compile(r'/company/')})
+        for comp in comps:
+            taglst.append(comp.text.replace(' ', ''))
     return taglst
 
 def tags_from_IMDb(param):

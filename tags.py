@@ -45,8 +45,12 @@ def gen_tags(url):
     countries = parser.findAll('a', {'href' : re.compile(r'\?country_of_origin=')}) # Countries
     for country in countries:
         taglst.append(country.text.replace(' ', ''))
-    taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content'].split('-')[0]) # Release Date
-    genres = parser.findAll('a', {'href' : re.compile(r'/genre/\w+\?')}) # Genres
+    try: # Release Date
+        taglst.append(parser.find('div', 'subtext').findNext('meta', {'itemprop' : 'datePublished'})['content'].split('-')[0])
+    except:
+        taglst.append(parser.find('div', 'title_wrapper').findNext('span').findNext('a').text)
+        # taglst.append(re.findall("\d+", parser.find('div', 'subtext').find('a', {'href' : re.compile(r'releaseinfo')}).text)[0]) # 20 April 2018
+    genres = parser.findAll('a', {'href' : re.compile(r'/search/title\?genres')}) # Genres
     for genre in genres:
         if not genre.text.strip() in taglst:
             taglst.append(genre.text.strip())
